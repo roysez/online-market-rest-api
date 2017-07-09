@@ -19,23 +19,72 @@ public class Ad implements Identifiable<Long> {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Type type;
+
+    public enum Type {
+
+        BUY,
+
+        SELL
+
+    }
+
     @Column(nullable = false)
     private String content;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Currency currency;
+
+
+    public enum Currency {
+
+        USD,
+
+        EUR
+
+    }
+
     @Column(nullable = false)
     private BigDecimal rate;
+
     @ManyToOne
     @JoinColumn(nullable = false)
     private User user;
+
     private Location location;
+
+    @Embeddable
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Location {
+
+        @Column(nullable = false)
+        private String city;
+
+        private String area;
+
+    }
+
     private String comment;
+
     @Lob
     private LocalDateTime publishedAt;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.NEW;
+
+    public enum Status {
+
+        NEW,
+
+        PUBLISHED,
+
+        EXPIRED
+
+    }
 
     public Ad publish() {
         if (status == Status.NEW) {
@@ -57,43 +106,4 @@ public class Ad implements Identifiable<Long> {
         return this;
     }
 
-    public enum Type {
-
-        BUY,
-
-        SELL
-
-    }
-
-    public enum Currency {
-
-        USD,
-
-        EUR
-
-    }
-
-    public enum Status {
-
-        NEW,
-
-        PUBLISHED,
-
-        EXPIRED
-
-    }
-
-    @Embeddable
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Location {
-
-        @Column(nullable = false)
-        private String city;
-
-        private String area;
-
-    }
 }
