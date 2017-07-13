@@ -1,4 +1,4 @@
-package com.market.domain.core.ad;
+package com.market.controller;
 
 import com.market.Application;
 import com.market.CustomRepositoryRestConfigurer;
@@ -41,10 +41,12 @@ public class AdControllerIT {
 
     @Before
     public void setUp(){
-        User user = new User().setId(2L).setPhoneNumber("+380935158848");
+        User user = new User();
+        user.setId(1L);
+                user.setPhoneNumber("+380935158848");
 
         Ad ad = new Ad().setUser(user)
-            .setId(2L)
+            .setId(1L)
             .setCurrency(Ad.Currency.EUR)
             .setLocation(new Ad.Location("Lviv","Shevchenkivsk"))
             .setContent("test")
@@ -58,7 +60,7 @@ public class AdControllerIT {
     @Test
     public void findOneTest(){
         ResponseEntity<Resource<Ad>> responseEntity =
-                restTemplate.exchange("http://localhost:8080/ads/2",
+                restTemplate.exchange("http://localhost:8080/ads/1",
                         HttpMethod.GET,
                         null,
                         new ParameterizedTypeReference<Resource<Ad>>() {});
@@ -67,6 +69,7 @@ public class AdControllerIT {
 
         System.out.println(adResource.getContent());
         assertThat(adResource.getContent().getContent(),is("test"));
+
 //        ImmutableList<Long> listOfId = list.getContent().stream()
 //                .map(Ad::getId)
 //                .collect(collectingAndThen(toList(), ImmutableList::copyOf));
@@ -79,17 +82,16 @@ public class AdControllerIT {
     @Test
     public void publishOneTest(){
 
-        Ad ad = adRepository.findOne(2L);
-        System.out.println(ad);
+        Ad ad = adRepository.findOne(1L);
+
         assert(ad.getStatus().equals(Ad.Status.NEW));
 
-                restTemplate.exchange("http://localhost:8080/ads/2/publishing",
+                restTemplate.exchange("http://localhost:8080/ads/1/publishing",
                         HttpMethod.GET,
                         null,
                         new ParameterizedTypeReference<Resource<Ad>>() {});
 
-         ad = adRepository.findOne(2L);
-        System.out.println(ad);
+        ad = adRepository.findOne(1L);
 
         assertThat(ad.getStatus(),is(Ad.Status.PUBLISHED));
 
