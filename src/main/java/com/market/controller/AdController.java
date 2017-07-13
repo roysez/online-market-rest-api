@@ -1,5 +1,7 @@
-package com.market.domain.core.ad;
+package com.market.controller;
 
+import com.market.repository.AdRepository;
+import com.market.entity.Ad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.PersistentEntityResource;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;

@@ -1,4 +1,4 @@
-package com.market.domain.core.ad;
+package com.market.entity;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

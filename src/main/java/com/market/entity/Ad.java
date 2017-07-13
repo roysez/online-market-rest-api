@@ -1,7 +1,10 @@
-package com.market.domain.core.ad;
+package com.market.entity;
 
-import com.market.domain.core.user.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.hateoas.Identifiable;
 
 import javax.persistence.*;
@@ -9,7 +12,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Accessors(chain = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Ad implements Identifiable<Long> {
 
     @Id
@@ -47,7 +54,7 @@ public class Ad implements Identifiable<Long> {
     @Column(nullable = false)
     private BigDecimal rate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private User user;
 
@@ -106,4 +113,19 @@ public class Ad implements Identifiable<Long> {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "Ad{" +
+                "id=" + id +
+                ", type=" + type +
+                ", content='" + content + '\'' +
+                ", currency=" + currency +
+                ", rate=" + rate +
+                ", user=" + user +
+                ", location=" + location +
+                ", comment='" + comment + '\'' +
+                ", publishedAt=" + publishedAt +
+                ", status=" + status +
+                '}';
+    }
 }
