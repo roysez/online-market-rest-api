@@ -31,7 +31,9 @@ public class AdService {
     public Ad findOne(Long id) {
         return adRepository.findOne(id);
     }
+
     public void save(Ad ad){ adRepository.save(ad); }
+
     @FunctionalInterface
     private interface Action {
 
