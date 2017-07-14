@@ -4,8 +4,8 @@ import com.market.Application;
 import com.market.CustomRepositoryRestConfigurer;
 import com.market.entity.Ad;
 import com.market.entity.User;
-import com.market.repository.AdRepository;
 import com.market.repository.UserRepository;
+import com.market.service.AdService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,12 +40,12 @@ import static org.hamcrest.core.IsNull.notNullValue;
 public class AdControllerIT {
 
     @Autowired
-    AdRepository adRepository;
+    private AdService adService;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
-    TestRestTemplate restTemplate = new TestRestTemplate();
+    private TestRestTemplate restTemplate = new TestRestTemplate();
 
     @Before
     public void setUp(){
@@ -63,7 +63,7 @@ public class AdControllerIT {
                 .setStatus(Ad.Status.NEW);
 
         userRepository.save(user);
-        adRepository.save(ad);
+        adService.save(ad);
     }
     @Test
     public void findOneTest(){
@@ -117,18 +117,37 @@ public class AdControllerIT {
     @Test
     public void publishOneTest(){
 
-        Ad ad = adRepository.findOne(1L);
+        Ad ad = adService.findOne(1L);
 
         assert(ad.getStatus().equals(Ad.Status.NEW));
 
                 restTemplate.exchange("http://localhost:8080/ads/1/publishing",
-                        HttpMethod.GET,
+                        HttpMethod.PUT,
                         null,
                         new ParameterizedTypeReference<Resource<Ad>>() {});
 
-        ad = adRepository.findOne(1L);
+        ad = adService.findOne(1L);
 
         assertThat(ad.getStatus(),is(Ad.Status.PUBLISHED));
+
+    }
+
+    @Test
+    public void expireOneTest(){
+
+        Ad ad = adService.findOne(1L);
+        ad.setStatus(Ad.Status.PUBLISHED);
+        adService.save(ad);
+        assert(ad.getStatus().equals(Ad.Status.PUBLISHED));
+
+        restTemplate.exchange("http://localhost:8080/ads/1/expiration",
+                HttpMethod.PUT,
+                null,
+                new ParameterizedTypeReference<Resource<Ad>>() {});
+
+        ad = adService.findOne(1L);
+
+        assertThat(ad.getStatus(),is(Ad.Status.EXPIRED));
 
     }
 }
