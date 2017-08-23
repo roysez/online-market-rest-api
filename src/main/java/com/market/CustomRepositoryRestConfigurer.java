@@ -14,4 +14,5 @@ public class CustomRepositoryRestConfigurer extends RepositoryRestConfigurerAdap
         config.exposeIdsFor(Ad.class);
         config.exposeIdsFor(User.class);
     }
+
 }

@@ -20,7 +20,8 @@ public class Application {
     @Autowired
     public void authenticationManager(AuthenticationManagerBuilder authenticationManagerBuilder,
                                       UserRepository userRepository) throws Exception{
-        userRepository.save(new User(1L,"user","user","+380935158848", User.Role.USER));
+        userRepository.save(new User(1L,"user","user",
+                "+380935158848", User.Role.USER));
         authenticationManagerBuilder
                 .userDetailsService(s -> new CustomUserDetails(userRepository
                         .findByUsername(s)));
