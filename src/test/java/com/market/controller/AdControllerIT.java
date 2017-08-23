@@ -12,13 +12,16 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.TokenRequest;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,7 +39,6 @@ import static org.hamcrest.core.IsNull.notNullValue;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes =  {Application.class, CustomRepositoryRestConfigurer.class})
-@Import(CustomRepositoryRestConfigurer.class)
 public class AdControllerIT {
 
     @Autowired
@@ -47,11 +49,19 @@ public class AdControllerIT {
 
     private TestRestTemplate restTemplate = new TestRestTemplate();
 
+
+
+    @Autowired
+    private TokenStore tokenStore;
+
     @Before
     public void setUp(){
         User user = new User();
         user.setId(1L);
                 user.setPhoneNumber("+380935158848");
+                user.setPassword("user");
+                user.setUsername("user");
+                user.setRole(User.Role.ADMIN);
 
         Ad ad = new Ad().setUser(user)
             .setId(1L)
@@ -64,13 +74,25 @@ public class AdControllerIT {
 
         userRepository.save(user);
         adService.save(ad);
+
+
+        final OAuth2AccessToken token = new DefaultOAuth2AccessToken("FOO");
+        final ClientDetails client = new BaseClientDetails("client", null, "read write", "client_credentials", "ROLE_CLIENT");
+        final OAuth2Authentication authentication = new OAuth2Authentication(
+                new TokenRequest(null, "client", null, "client_credentials").createOAuth2Request(client), null);
+
+        tokenStore.storeAccessToken(token, authentication);
     }
     @Test
     public void findOneTest(){
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer FOO");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         ResponseEntity<Resource<Ad>> responseEntity =
                 restTemplate.exchange("http://localhost:8080/ads/1",
                         HttpMethod.GET,
-                        null,
+                        new HttpEntity<>(headers),
                         new ParameterizedTypeReference<Resource<Ad>>() {});
 
         Resource<Ad> adResource = responseEntity.getBody();
